@@ -5,7 +5,6 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
 const uploadFile = async (filePath) => {
   // Extract the file name and extension
   const fileExtension = path.extname(filePath.name); // e.g., '.jpeg'
@@ -14,6 +13,12 @@ const uploadFile = async (filePath) => {
     throw new Error("Only Images are allowed");
   }
 
+  const MAX_SIZE = 2 * 1024 * 1024; // 2MB
+
+  // Check if the file size exceeds 2MB
+  if (filePath.size > MAX_SIZE) {
+    throw new Error("File size exceeds 2MB");
+  }
   // Append timestamp to the file name to make it unique (before the extension)
   const uniqueFileName = `${baseName}-${Date.now()}${fileExtension}`;
 
