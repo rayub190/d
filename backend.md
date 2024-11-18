@@ -404,3 +404,369 @@ This guide shows you how to create schemas, perform CRUD operations, and use the
 2. **Clear error handling**: Used `try/catch` blocks to handle errors in the async functions.
 3. **Structure**: Kept the guide focused on explaining CRUD before introducing schema references and `populate()`.
 ```
+
+Mongoose provides a robust validation system for schema fields, allowing you to ensure data integrity before saving to the database. There are several built-in validators and you can also create custom ones.
+
+### Built-in Validators
+
+1. **`required`**: Ensures the field is mandatory.
+
+   ```js
+   const userSchema = new mongoose.Schema({
+     name: { type: String, required: true },
+   });
+   ```
+
+2. **`min` and `max`**: Set a range for numbers.
+
+   ```js
+   const productSchema = new mongoose.Schema({
+     price: { type: Number, min: 0, max: 1000 },
+   });
+   ```
+
+3. **`maxlength` and `minlength`**: Define character limits for strings.
+
+   ```js
+   const postSchema = new mongoose.Schema({
+     title: { type: String, minlength: 5, maxlength: 100 },
+   });
+   ```
+
+4. **`enum`**: Restrict the value to a set of predefined options.
+
+   ```js
+   const orderSchema = new mongoose.Schema({
+     status: { type: String, enum: ["pending", "shipped", "delivered"] },
+   });
+   ```
+
+5. **`match`**: Use regex to validate string patterns.
+   ```js
+   const userSchema = new mongoose.Schema({
+     email: { type: String, match: /.+\@.+\..+/ },
+   });
+   ```
+
+### Custom Validators
+
+You can also define custom validators using the `validate` property.
+
+```js
+const userSchema = new mongoose.Schema({
+  age: {
+    type: Number,
+    validate: {
+      validator: function (value) {
+        return value >= 18;
+      },
+      message: "Age must be at least 18",
+    },
+  },
+});
+```
+
+This custom validator ensures that the `age` field value is at least 18.
+
+### Asynchronous Validators
+
+If you need to validate against an asynchronous operation (e.g., checking if a username already exists), you can pass a callback with `validate`.
+
+```js
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    validate: {
+      validator: async function (value) {
+        const user = await User.findOne({ username: value });
+        return !user;
+      },
+      message: "Username already exists",
+    },
+  },
+});
+```
+
+This approach allows you to handle asynchronous operations in your custom validation logic.
+
+Ah, I see! You want to implement the **login**, **register**, and **product-related routes** from scratch with middleware applied properly in ES6 format. Let's go step by step and implement everything, including user authentication, middleware, and product-related operations.
+
+### 1. **User Model** (ES6)
+
+The `User` model will handle user data, including username, email, and password, and will hash the password before saving it to the database.
+
+#### `models/User.js`
+
+```js
+import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import validator from "validator";
+
+const userSchema = new mongoose.Schema({
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    minlength: 3,
+    maxlength: 50,
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    validate: {
+      validator: validator.isEmail,
+      message: "Invalid email format",
+    },
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6,
+  },
+});
+
+// Hash password before saving
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    this.password = await bcrypt.hash(this.password, salt);
+  }
+  next();
+});
+
+// Compare password method
+userSchema.methods.comparePassword = function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+const User = mongoose.model("User", userSchema);
+export default User;
+```
+
+### 2. **Auth Middleware** (For Protected Routes)
+
+This middleware ensures that only authenticated users can access certain routes by checking their JWT token.
+
+#### `middlewares/authMiddleware.js`
+
+```js
+import jwt from "jsonwebtoken";
+
+const authMiddleware = (req, res, next) => {
+  const authHeader = req.header("Authorization");
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    return res
+      .status(401)
+      .json({ message: "Access denied. No token provided." });
+  }
+
+  // Extract the token part after "Bearer "
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, "yourSecretKey");
+    req.user = decoded; // Attach decoded user info to request object
+    next(); // Proceed to the next middleware or route handler
+  } catch (error) {
+    res.status(400).json({ message: "Invalid token." });
+  }
+};
+
+export default authMiddleware;
+```
+
+### 3. **Register Route**
+
+This route will handle user registration, creating a new user and saving it to the database.
+
+#### `controllers/authController.js`
+
+```js
+import User from "../models/User.js";
+
+export const registerUser = async (req, res) => {
+  const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already in use" });
+    }
+
+    const newUser = new User({ username, email, password });
+    await newUser.save();
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+```
+
+### 4. **Login Route**
+
+This route allows users to log in, validating their credentials and returning a JWT token.
+
+#### `controllers/authController.js`
+
+```js
+import User from "../models/User.js";
+import jwt from "jsonwebtoken";
+
+export const loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "Email and password are required" });
+  }
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const token = jwt.sign(
+      { id: user._id, email: user.email },
+      "yourSecretKey",
+      { expiresIn: "1h" }
+    );
+    res.json({ message: "Login successful", token });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+```
+
+### 5. **Product Routes** with Middleware
+
+Let's now implement the product-related routes (CRUD operations) and apply the authentication middleware where necessary.
+
+#### `controllers/productController.js`
+
+```js
+export const getProduct = (req, res) => {
+  res.json({ message: "Fetching all products" });
+};
+
+export const addProduct = (req, res) => {
+  res.json({ message: "Product added successfully" });
+};
+
+export const updateProduct = (req, res) => {
+  res.json({ message: "Product updated successfully" });
+};
+
+export const deleteProduct = (req, res) => {
+  res.json({ message: "Product deleted successfully" });
+};
+
+export const getProductDetail = (req, res) => {
+  const { id } = req.params;
+  res.json({ message: `Fetching details for product ${id}` });
+};
+```
+
+### 6. **Product Routes with Auth Middleware**
+
+Now, you need to protect your product routes with authentication, so that only logged-in users can add, update, and delete products.
+
+#### `routes/productRoutes.js`
+
+```js
+import express from "express";
+import {
+  addProduct,
+  deleteProduct,
+  getProduct,
+  getProductDetail,
+  updateProduct,
+} from "../controllers/productController.js";
+import authMiddleware from "../middlewares/authMiddleware.js";
+
+const router = express.Router();
+
+router.route("/").get(getProduct);
+router.route("/add").post(authMiddleware, addProduct);
+router.route("/update").put(authMiddleware, updateProduct);
+router
+  .route("/:id")
+  .delete(authMiddleware, deleteProduct)
+  .get(getProductDetail);
+
+export default router;
+```
+
+### 7. **Main Server Setup**
+
+Finally, tie everything together in your main server file.
+
+#### `app.js`
+
+```js
+import express from "express";
+import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import authRoutes from "./routes/authRoutes.js"; // For login/register
+import productRoutes from "./routes/productRoutes.js"; // For product-related routes
+
+const app = express();
+
+// Middleware
+app.use(bodyParser.json());
+
+// Routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+
+// MongoDB connection
+mongoose
+  .connect("mongodb://localhost:27017/yourDB", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => console.log("MongoDB connected"))
+  .catch((error) => console.error("MongoDB connection error:", error));
+
+// Start server
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});
+```
+
+### 8. **Auth Routes Setup**
+
+Lastly, create routes for **login** and **register**.
+
+#### `routes/authRoutes.js`
+
+```js
+import express from "express";
+import { registerUser, loginUser } from "../controllers/authController.js";
+
+const router = express.Router();
+
+router.post("/register", registerUser);
+router.post("/login", loginUser);
+
+export default router;
+```
+
+### Summary
+
+- **User Model**: Defines how users are created, hashed passwords, and methods for comparing passwords.
+- **Auth Middleware**: Protects routes by verifying JWT tokens.
+- **Login & Register Routes**: Handles user authentication (registration and login).
+- **Product Routes**: Includes product CRUD routes, some of which are protected by the authentication middleware.
+- **Main Server**: The main app ties everything together.
+
+You can now add further business logic to each route as needed.

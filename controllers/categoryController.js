@@ -21,7 +21,8 @@ export const deleteCategory = async (req, res) => {
     }
 
     await deleteFile(category.image);
-    await category.remove();
+    
+    await Category.deleteOne({ _id: req.params.id });
 
     res.status(200).json(category);
   } catch (e) {
