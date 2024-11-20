@@ -1,5 +1,6 @@
 import User from "../model/userModel.js";
 import jwt from "jsonwebtoken";
+import { sendMail } from "../utils/emailhelpers.js";
 
 export const registerUser = async (req, res) => {
   const { username, email, password, name } = req.body;
@@ -45,6 +46,7 @@ export const loginUser = async (req, res) => {
       "yourSecretKey",
       { expiresIn: "1h" } // Expiry options in seconds: 86400 = 1 day, 3600 = 1 hour, 1800 = 30 minutes, 604800 = 7 days, 43200 = 12 hours, 1209600 = 2 weeks, 31536000 = 1 year.
     );
+    await sendMail({ email });
     res.json({ message: "Login successful", token });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
