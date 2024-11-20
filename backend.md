@@ -503,6 +503,10 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 
 const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+  },
   username: {
     type: String,
     required: true,
@@ -714,33 +718,38 @@ Finally, tie everything together in your main server file.
 
 ```js
 import express from "express";
-import mongoose from "mongoose";
-import bodyParser from "body-parser";
-import authRoutes from "./routes/authRoutes.js"; // For login/register
-import productRoutes from "./routes/productRoutes.js"; // For product-related routes
-
 const app = express();
 
-// Middleware
-app.use(bodyParser.json());
+import mongoose from "mongoose";
+import cors from "cors";
+import fileUpload from "express-fileupload";
+import dotenv from "dotenv";
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/products", productRoutes);
+dotenv.config();
 
-// MongoDB connection
-mongoose
-  .connect("mongodb://localhost:27017/yourDB", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => console.log("MongoDB connected"))
-  .catch((error) => console.error("MongoDB connection error:", error));
+import ProductRouter from "./routes/productRoutes.js";
+import categoryRouters from "./routes/categoryRoutes.js";
+import userRouters from "./routes/userRoutes.js";
 
-// Start server
-app.listen(5000, () => {
-  console.log("Server running on port 5000");
-});
+app.use(cors());
+app.use(express.static("./public"));
+app.use(fileUpload());
+app.use(express.json());
+
+app.use("/products", ProductRouter);
+app.use("/category", categoryRouters);
+app.use("/user", userRouters);
+
+const start = async () => {
+  try {
+    await mongoose.connect("mongodb://localhost:27017/united");
+    app.listen(5000, () => console.log("listening on port 5000"));
+  } catch (e) {
+    console.error(e.message);
+  }
+};
+
+start();
 ```
 
 ### 8. **Auth Routes Setup**
@@ -760,6 +769,100 @@ router.post("/login", loginUser);
 
 export default router;
 ```
+
+1. Open **Postman** and set up the **POST** request.
+
+2. For **Register**:
+
+   - URL: `http://localhost:5000/user/register`
+   - Go to **Body** > **raw** > **JSON**, and input:
+     ```json
+     {
+       "username": "JohnDoe1",
+       "name": "John Doe",
+       "email": "tempMail@gmail.com",
+       "password": "123456"
+     }
+     ```
+   - Click **Send**.
+
+3. For **Login**:
+   - URL: `http://localhost:5000/user/login`
+   - Go to **Body** > **raw** > **JSON**, and input:
+     ```json
+     {
+       "email": "tempMail@gmail.com",
+       "password": "123456"
+     }
+     ```
+   - Click **Send**.
+
+#### 9 . Send Email
+
+```js
+import nodemailer from "nodemailer";
+import QRCode from "qrcode";
+
+export const sendMail = async ({ email, name }) => {
+  try {
+    // Generate QR code
+    const qrCodeData = await QRCode.toDataURL(`https://theflixertv.to/home`);
+    const base64Data = qrCodeData.split("base64,")[1]; // Extract Base64 content
+
+    // Create a transporter
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: "Your Email", // Replace with your email
+        pass: "App Password", // Replace with your app password
+      },
+    });
+
+    // Define email options
+    const mailOptions = {
+      from: "email", // Replace with your email
+      to: email,
+      subject: "Welcome to Our Platform!",
+      html: `
+    <h1>Welcome to Our Platform, ${name}!</h1>
+    <p>Thank you for registering with us! We are excited to have you as a part of our community.</p>
+    <p>Here is your unique QR code for easy access to our services:</p>
+    <img src="cid:qr-code" alt="QR Code" />
+    <p>Make the most of your experience by exploring our features and resources. If you have any questions or need assistance, feel free to reach out to our support team.</p>
+    <p>Best regards,<br>The [Your Platform Name] Team</p>
+  `,
+      attachments: [
+        {
+          filename: "qr-code.png",
+          content: base64Data,
+          encoding: "base64",
+          cid: "qr-code", // Content ID for the embedded image
+        },
+      ],
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    console.log("Welcome email sent successfully");
+  } catch (e) {
+    console.error("Error sending welcome email:", e.message);
+  }
+};
+```
+
+### **Imports Explanation**
+
+```javascript
+import nodemailer from "nodemailer";
+```
+
+- **Purpose**: Imports the `nodemailer` package, which is used to send emails from Node.js applications. It handles email .
+
+```javascript
+import QRCode from "qrcode";
+```
+
+- **Purpose**: Imports the `qrcode` package, which generates QR codes. It converts text or URLs into QR code images, which can be used for easy access to links.
 
 ### Summary
 
