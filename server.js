@@ -10,7 +10,7 @@ dotenv.config();
 
 import ProductRouter from "./routes/productRoutes.js";
 import categoryRouters from "./routes/categoryRoutes.js";
-
+import userRouters from "./routes/userRoutes.js";
 
 app.use(cors());
 app.use(express.static("./public"));
@@ -19,10 +19,11 @@ app.use(express.json());
 
 app.use("/products", ProductRouter);
 app.use("/category", categoryRouters);
+app.use("/user", userRouters);
 
 const start = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connect("mongodb://localhost:27017/united");
     app.listen(5000, () => console.log("listening on port 5000"));
   } catch (e) {
     console.error(e.message);

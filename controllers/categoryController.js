@@ -21,7 +21,8 @@ export const deleteCategory = async (req, res) => {
     }
 
     await deleteFile(category.image);
-    await category.remove();
+
+    await Category.deleteOne({ _id: req.params.id });
 
     res.status(200).json(category);
   } catch (e) {
@@ -31,7 +32,7 @@ export const deleteCategory = async (req, res) => {
 
 export const getCategoryList = async (req, res) => {
   try {
-    const categories = await Category.find({ name: "shoes" });
+    const categories = await Category.find();
     res.status(200).json(categories);
   } catch (e) {
     res.status(400).json({ message: e.message });

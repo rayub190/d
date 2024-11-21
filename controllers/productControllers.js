@@ -33,7 +33,6 @@ export const addProduct = async (req, res) => {
       throw new Error("Something went wrong while creating the product.");
     }
 
-    console.log(product);
     res.status(201).json(product); // Send back the created product
   } catch (error) {
     console.error(error);
@@ -60,7 +59,7 @@ export const updateProduct = async (req, res) => {
 };
 
 export const getProduct = async (req, res) => {
-  const product = await Product.find().sort({ createdAt: -1 }).limit(1).skip(1);
+  const product = await Product.find().sort({ createdAt: -1 });
 
   if (!product) throw new Error("something went wrong");
 
