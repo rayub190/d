@@ -1,0 +1,158 @@
+[{
+  "_id": {
+    "$oid": "673a86f3c997cbefcea8cc14"
+  },
+  "name": "electronic",
+  "image": "https://plus.unsplash.com/premium_photo-1683120974913-1ef17fdec2a8?q=80&w=3000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "createdAt": {
+    "$date": "2024-11-18T00:14:43.359Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-18T00:14:43.359Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "673d48e0d2130ea2dee555d5"
+  },
+  "name": "shoes",
+  "image": "https://images.unsplash.com/photo-1505233676147-accd9c73eb1b?q=80&w=2862&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+  "createdAt": {
+    "$date": "2024-11-20T02:26:40.448Z"
+  },
+  "updatedAt": {
+    "$date": "2024-11-20T02:26:40.448Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f0"
+  },
+  "name": "Home and Living",
+  "createdAt": {
+    "$date": "2020-07-25T07:38:46.000Z"
+  },
+  "updatedAt": {
+    "$date": "2022-10-12T20:30:39.000Z"
+  },
+  "images": "http://dummyimage.com/144x100.png/ff4444/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f1"
+  },
+  "name": "Food and Beverages",
+  "createdAt": {
+    "$date": "2023-07-04T18:45:01.000Z"
+  },
+  "updatedAt": {
+    "$date": "2021-04-16T20:24:05.000Z"
+  },
+  "images": "http://dummyimage.com/206x100.png/cc0000/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f2"
+  },
+  "name": "Baby and Kids",
+  "createdAt": {
+    "$date": "2020-07-20T20:53:03.000Z"
+  },
+  "updatedAt": {
+    "$date": "2024-09-22T05:52:23.000Z"
+  },
+  "images": "http://dummyimage.com/220x100.png/ff4444/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f3"
+  },
+  "name": "Sports and Outdoors",
+  "createdAt": {
+    "$date": "2022-03-16T16:22:01.000Z"
+  },
+  "updatedAt": {
+    "$date": "2023-06-30T20:58:20.000Z"
+  },
+  "images": "http://dummyimage.com/182x100.png/dddddd/000000"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f4"
+  },
+  "name": "Books and Stationery",
+  "createdAt": {
+    "$date": "2023-12-11T06:20:37.000Z"
+  },
+  "updatedAt": {
+    "$date": "2023-03-30T10:14:12.000Z"
+  },
+  "images": "http://dummyimage.com/248x100.png/cc0000/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f5"
+  },
+  "name": "Pet Supplies\n",
+  "createdAt": {
+    "$date": "2022-12-01T12:37:47.000Z"
+  },
+  "updatedAt": {
+    "$date": "2022-06-17T15:20:30.000Z"
+  },
+  "images": "http://dummyimage.com/127x100.png/5fa2dd/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f6"
+  },
+  "name": "Automotive",
+  "createdAt": {
+    "$date": "2022-05-18T17:10:44.000Z"
+  },
+  "updatedAt": {
+    "$date": "2024-05-24T01:07:37.000Z"
+  },
+  "images": "http://dummyimage.com/154x100.png/ff4444/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f7"
+  },
+  "name": "ahackley7",
+  "createdAt": {
+    "$date": "2024-04-04T07:44:22.000Z"
+  },
+  "updatedAt": {
+    "$date": "2022-01-04T17:54:10.000Z"
+  },
+  "images": "http://dummyimage.com/142x100.png/dddddd/000000"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f8"
+  },
+  "name": "eyorkston8",
+  "createdAt": {
+    "$date": "2024-04-09T12:03:50.000Z"
+  },
+  "updatedAt": {
+    "$date": "2022-10-03T03:53:01.000Z"
+  },
+  "images": "http://dummyimage.com/148x100.png/cc0000/ffffff"
+},
+{
+  "_id": {
+    "$oid": "673e4653fc13ae5ba6eed3f9"
+  },
+  "name": "hfifield9",
+  "createdAt": {
+    "$date": "2020-05-26T07:47:37.000Z"
+  },
+  "updatedAt": {
+    "$date": "2022-12-03T22:22:11.000Z"
+  },
+  "images": "http://dummyimage.com/210x100.png/dddddd/000000"
+}]
