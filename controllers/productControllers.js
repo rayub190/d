@@ -106,3 +106,49 @@ export const getProductDetail = async (req, res) => {
 
   res.status(200).json(product);
 };
+export const getProductList=async (req,res) => {
+const {
+  page = 1,
+  limit = 10,
+  sortBy = "-createdAt",
+ order = "desc",
+  search = "",
+} = req.query;
+
+try {
+  const product = await Product.aggregate ([
+
+    {
+      $match: {
+       title : { $regex : new RegExp(search, "i") },
+      },
+    },
+
+
+    {
+      $lookup: {
+        from: "categories",
+        localField: "category",
+        foreignField: "_id",
+        as: "category",
+      },
+      
+    },
+    {
+      $set: {category: { $first: "$category"}}},
+
+    
+    { $skip: (page -1 ) * limit },
+    { $limit: limit },
+    { $sort: { createdAt: order === "asc" ? 1 : -1 } },
+    {$project:{
+      title:1
+    }
+
+    }
+  ]);
+
+  res.status(200).json(product);
+} catch (error) {
+  res.status(500).json ({message:error.message})
+}} 

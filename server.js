@@ -21,9 +21,10 @@ app.use("/products", ProductRouter);
 app.use("/category", categoryRouters);
 app.use("/user", userRouters);
 
+const PORT = process.env.PORT || 5000
 const start = async () => {
   try {
-    await mongoose.connect("mongodb://localhost:27017/united");
+    await mongoose.connect(process.env.MONGO_URL);
     app.listen(5000, () => console.log("listening on port 5000"));
   } catch (e) {
     console.error(e.message);
